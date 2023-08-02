@@ -69,7 +69,7 @@
 //}
 //Console.WriteLine($"Total Eating time is " + DiningPhilosopherS2.EatTime.Sum(i => i.Value) + " ms");
 
-#endregion 
+#endregion
 
 
 #region thread synchrization problem
@@ -104,45 +104,95 @@
 //        Console.WriteLine(i);
 //    }
 //}
-#endregion 
+#endregion
 
-#region Producer/consumer queue
+#region Producer/consumer queue AutoReset and Manual Reset
 
-ProduceConsumerQueue.consmuers.AddRange(new List<Thread> {
-new Thread(() => { ProduceConsumerQueue.DoWork(ConsoleColor.Red); }),
-new Thread(() => { ProduceConsumerQueue.DoWork(ConsoleColor.Green); }),
-new Thread(() => { ProduceConsumerQueue.DoWork(ConsoleColor.Blue); })
-});
+//ProduceConsumerQueue.consmuers.AddRange(new List<Thread> {
+//new Thread(() => { ProduceConsumerQueue.DoWork(ConsoleColor.Red); }),
+//new Thread(() => { ProduceConsumerQueue.DoWork(ConsoleColor.Green); }),
+//new Thread(() => { ProduceConsumerQueue.DoWork(ConsoleColor.Blue); })
+//});
 
-foreach (var consumer in ProduceConsumerQueue.consmuers)
+//foreach (var consumer in ProduceConsumerQueue.consmuers)
+//{
+//    consumer.Start();
+//}
+//bool paused = false;
+//while (true)
+//{
+//    ProduceConsumerQueue.EnqueueTask(() => Console.Write("M"));
+//    Thread.Sleep(1000);
+//    if (Console.KeyAvailable)
+//    {
+//        Console.ReadKey();
+//        if(paused)
+//        {
+//            ProduceConsumerQueue.ConsumersPaused.Set();
+//            Console.WriteLine("resumed");
+//        }
+//        else
+//        {
+//            ProduceConsumerQueue.ConsumersPaused.Reset();
+//            Console.WriteLine();
+//            Console.WriteLine("paused");
+//        }
+//        paused = !paused;
+//    }
+
+//}
+
+
+
+#endregion
+
+
+#region CountDown Event
+//ProducerConsumerQueueWithQuitting.consmuers.AddRange(new List<Thread> {
+//new Thread(() => { ProducerConsumerQueueWithQuitting.DoWork(ConsoleColor.Red); }),
+//new Thread(() => { ProducerConsumerQueueWithQuitting.DoWork(ConsoleColor.Green); }),
+//new Thread(() => { ProducerConsumerQueueWithQuitting.DoWork(ConsoleColor.Blue); })
+//});
+
+//foreach (var consumer in ProducerConsumerQueueWithQuitting.consmuers)
+//{
+//    consumer.Start();
+//}
+//int iteration = 0;
+//while (true)
+//{
+//    ProducerConsumerQueueWithQuitting.EnqueueTask(() => Console.Write("M"));
+//    Thread.Sleep(1000);
+//    if(iteration++ > 10)
+//    {
+//        lock (ProducerConsumerQueueWithQuitting.QuitSyncObj)
+//        {
+//            ProducerConsumerQueueWithQuitting.QuitRequested = true;
+//        }
+//        ProducerConsumerQueueWithQuitting.ConsumerQuit.Wait();
+//        Console.WriteLine("All Consumers quit !!");
+//        break;
+//    }
+//   }
+#endregion
+
+
+#region RendezVous Barriers
+Barrier barrier = new Barrier(3);
+void DoWork()
 {
-    consumer.Start();
-}
-bool paused = false;
-while (true)
-{
-    ProduceConsumerQueue.EnqueueTask(() => Console.Write("M"));
-    Thread.Sleep(1000);
-    if (Console.KeyAvailable)
+    for(int i=0; i<5; i++)
     {
-        Console.ReadKey();
-        if(paused)
-        {
-            ProduceConsumerQueue.ConsumersPaused.Set();
-            Console.WriteLine("resumed");
-        }
-        else
-        {
-            ProduceConsumerQueue.ConsumersPaused.Reset();
-            Console.WriteLine();
-            Console.WriteLine("paused");
-        }
-        paused = !paused;
+        Console.Write(i + " ");
+        barrier.SignalAndWait();
     }
-   
 }
-
-
+Thread thread = new Thread(DoWork);
+Thread thread1 = new Thread(DoWork);
+Thread thread2 = new Thread(DoWork);
+thread1.Start();
+thread2.Start();
+thread.Start();
 
 #endregion
 
